@@ -193,9 +193,12 @@
         content.dataset.html = html;
       }
     }
+    animateLastMove();
     renderArrows();
   }
 
+  // One arrow per voted move (up to 8). The arrow ends in a round bubble on
+  // the target square that shows how many votes that move has.
   function renderArrows() {
     const svg = $('arrows');
     if (!S || S.phase !== 'voting' || !S.votes.length) {
@@ -203,19 +206,65 @@
       return;
     }
     const total = S.votes.reduce((a, v) => a + v.count, 0);
-    let out = `<defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3fb68b"/></marker></defs>`;
-    S.votes.slice(0, 3).forEach((v, i) => {
+    const mine = currentVote();
+    const shown = S.votes.slice(0, 8);
+    let lines = '';
+    let bubbles = '';
+    // Draw weaker moves first so the leader sits on top.
+    for (let i = shown.length - 1; i >= 0; i--) {
+      const v = shown[i];
       const a = squareXY(v.uci.slice(0, 2));
       const b = squareXY(v.uci.slice(2, 4));
       const x1 = a.x + 0.5, y1 = a.y + 0.5, x2 = b.x + 0.5, y2 = b.y + 0.5;
       const len = Math.hypot(x2 - x1, y2 - y1);
-      const shorten = 0.35;
-      const ex = x2 - ((x2 - x1) / len) * shorten;
-      const ey = y2 - ((y2 - y1) / len) * shorten;
-      const op = (0.35 + 0.55 * (v.count / total)) * (i === 0 ? 1 : 0.8);
-      out += `<line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}" stroke="#3fb68b" stroke-width="${i === 0 ? 0.17 : 0.12}" stroke-linecap="round" opacity="${op.toFixed(2)}" marker-end="url(#ah)"/>`;
-    });
-    svg.innerHTML = out;
+      const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+      const r = 0.25; // bubble radius
+      const headLen = 0.24, headW = 0.17;
+      const tipX = x2 - ux * r, tipY = y2 - uy * r;
+      const baseX = tipX - ux * headLen, baseY = tipY - uy * headLen;
+      const leader = i === 0;
+      const color = leader ? '#1f8a5b' : '#3b2a1a';
+      const op = leader ? 0.95 : 0.55 + 0.35 * (v.count / total);
+      const w = leader ? 0.15 : 0.1;
+      lines += `<g opacity="${op.toFixed(2)}">` +
+        `<line x1="${x1}" y1="${y1}" x2="${baseX}" y2="${baseY}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>` +
+        `<polygon points="${tipX},${tipY} ${baseX - uy * headW},${baseY + ux * headW} ${baseX + uy * headW},${baseY - ux * headW}" fill="${color}"/>` +
+        `</g>`;
+      const ring = v.uci === mine ? '#4da3ff' : '#fff8ec';
+      bubbles += `<g class="bubble"><title>${v.san}: ${v.count} vote${v.count === 1 ? '' : 's'}</title>` +
+        `<circle cx="${x2}" cy="${y2}" r="${r}" fill="${color}" stroke="${ring}" stroke-width="0.05"/>` +
+        `<text x="${x2}" y="${y2}" text-anchor="middle" dominant-baseline="central" font-size="${v.count > 99 ? 0.2 : 0.27}" font-weight="800" fill="#fff">${v.count}</text></g>`;
+    }
+    svg.innerHTML = lines + bubbles;
+  }
+
+  // Slide the piece that just moved from its old square to its new one.
+  let animatedKey = null;
+  function animateLastMove() {
+    if (!S || !S.lastMove) return;
+    const key = S.gameNumber + ':' + S.ply;
+    if (animatedKey === null) { animatedKey = key; return; } // first paint: no animation
+    if (key === animatedKey) return;
+    animatedKey = key;
+    const slides = [[S.lastMove.from, S.lastMove.to]];
+    if (/^O-O/.test(S.lastMove.san)) {
+      const rank = S.lastMove.to[1];
+      slides.push(S.lastMove.san.startsWith('O-O-O') ? ['a' + rank, 'd' + rank] : ['h' + rank, 'f' + rank]);
+    }
+    for (const [from, to] of slides) slide(from, to);
+  }
+  function slide(from, to) {
+    const sqEl = squares[to];
+    const piece = sqEl && sqEl.querySelector('.piece');
+    if (!piece) return;
+    const a = squareXY(from), b = squareXY(to);
+    piece.style.transition = 'none';
+    piece.style.transform = `translate(${(a.x - b.x) * 100}%, ${(a.y - b.y) * 100}%)`;
+    sqEl.style.zIndex = 4;
+    void piece.getBoundingClientRect();
+    piece.style.transition = 'transform 380ms cubic-bezier(.22,.8,.3,1)';
+    piece.style.transform = '';
+    setTimeout(() => { sqEl.style.zIndex = ''; }, 420);
   }
 
   function fmt(n) {
@@ -267,7 +316,7 @@
         ? `You voted ${mineSan}. You can change your vote until the timer ends.`
         : S.deadline
           ? 'Click a piece, then a square, to add your vote.'
-          : `Click a piece, then a square. The first vote starts a ${S.config.voteSeconds}s countdown.`;
+          : `Click a piece, then a square. The first vote starts a ${S.config.voteSeconds % 60 === 0 ? S.config.voteSeconds / 60 + '-minute' : S.config.voteSeconds + '-second'} countdown.`;
     } else if (S.phase === 'engine') {
       title.textContent = 'Stockfish is thinking…';
       hint.textContent = S.lastMove && S.lastMove.by === 'people'
@@ -373,8 +422,8 @@
     if (S.phase === 'voting' && S.deadline) {
       const left = Math.max(0, S.deadline - now);
       const secs = Math.ceil(left / 1000);
-      timer.textContent = secs + 's';
-      timer.classList.toggle('urgent', secs <= 5);
+      timer.textContent = secs >= 60 ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : secs + 's';
+      timer.classList.toggle('urgent', secs <= 10);
       bar.style.width = (100 * left / (S.config.voteSeconds * 1000)) + '%';
     } else if (S.phase === 'gameover' && S.nextGameAt) {
       const secs = Math.max(0, Math.ceil((S.nextGameAt - now) / 1000));

@@ -3,7 +3,7 @@
 A chess website where **everyone plays together against Stockfish**.
 
 - When it's the people's turn, every visitor can vote for a move (click a piece, then a square).
-- The first vote starts a countdown (20 s by default). Votes can be changed until it ends.
+- The first vote starts a countdown (5 minutes by default). Votes can be changed until it ends.
 - The move with the most votes is played. A tie goes to the move that was suggested first.
 - Stockfish answers, and the next voting round starts.
 - When a game ends, a new one starts automatically and the people switch colours. It runs forever.
@@ -81,7 +81,7 @@ or an Oracle Cloud "Always Free" VM). Set the same environment variables there.
 | --- | --- | --- |
 | `STOCKFISH_SKILL` | `10` | Stockfish strength, 0 (weakest) to 20 (full strength). |
 | `ENGINE_MOVE_MS` | `1000` | How long Stockfish thinks per move, in milliseconds. |
-| `VOTE_SECONDS` | `20` | Length of each voting round after the first vote. |
+| `VOTE_SECONDS` | `300` | Length of each voting round after the first vote. |
 | `NEXT_GAME_SECONDS` | `15` | Pause between games. |
 | `MAX_VOTERS_PER_IP` | `3` | How many different browsers on one network can vote per round. |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | – | Store the counters in Upstash Redis. Without them, a local file `data/state.json` is used. |

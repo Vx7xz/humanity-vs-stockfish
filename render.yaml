@@ -13,7 +13,7 @@ services:
       - key: STOCKFISH_SKILL
         value: "10"
       - key: VOTE_SECONDS
-        value: "20"
+        value: "300"
       # Free Upstash Redis keeps the counters safe across restarts.
       # Render asks you to paste these when you create the Blueprint.
       - key: UPSTASH_REDIS_REST_URL

@@ -1,6 +1,7 @@
 // People vs Stockfish — everyone votes on the people's move, the move with the
 // most votes is played, then Stockfish answers. Games run back to back forever.
 import express from 'express';
+import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,7 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 const CONFIG = {
   port: num(process.env.PORT, 3000),
-  voteSeconds: clamp(num(process.env.VOTE_SECONDS, 20), 3, 600),
+  voteSeconds: clamp(num(process.env.VOTE_SECONDS, 300), 3, 3600),
   engineMoveMs: clamp(num(process.env.ENGINE_MOVE_MS, 1000), 50, 30000),
   engineSkill: clamp(num(process.env.STOCKFISH_SKILL, 10), 0, 20),
   nextGameSeconds: clamp(num(process.env.NEXT_GAME_SECONDS, 15), 1, 600),
@@ -252,9 +253,25 @@ const io = new Server(server, { serveClient: true });
 
 // maxAge 0 + ETag: browsers revalidate, so a redeploy shows up immediately.
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
+// Piece sprite, adjusted so no piece carries a cross: the king gets a round
+// finial on top and the bishop gets the traditional diagonal mitre slit.
+const PIECES_SVG = (() => {
+  let svg = fs.readFileSync(require.resolve('cm-chessboard/assets/pieces/standard.svg'), 'utf8');
+  svg = svg.replace(/<g id="(wk|bk)"([\s\S]*?)<\/g>/g, (_m, id, body) => {
+    const fill = id === 'wk' ? '#FFFFFF' : '#000000';
+    body = body
+      .replace(/<line [^>]*\/>\s*/g, '')
+      .replace('stroke-width="1.5">', `stroke-width="1.5">\n<circle cx="15" cy="3.1" r="2.3" stroke="#000000" fill="${fill}"/>`);
+    return `<g id="${id}"${body}</g>`;
+  });
+  svg = svg.replaceAll(
+    ' M14,9.26470588 L14,13.6764706 M11.8787879,11.4705882 L16.1212121,11.4705882',
+    ' M11.6,13.4 L16.4,9.4',
+  );
+  return svg;
+})();
 app.get('/pieces.svg', (_req, res) => {
-  res.set('Cache-Control', 'public, max-age=86400');
-  res.sendFile(require.resolve('cm-chessboard/assets/pieces/standard.svg'));
+  res.type('image/svg+xml').set('Cache-Control', 'no-cache').send(PIECES_SVG);
 });
 app.get('/health', (_req, res) => res.json({ ok: true, phase, totalMoves: state.totalMoves }));
 app.get('/api/state', (_req, res) => res.json(publicState()));
