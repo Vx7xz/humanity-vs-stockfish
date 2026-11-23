@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>People vs Stockfish</title>
+  <meta name="description" content="Everyone votes on one move. The most-voted move is played against Stockfish. Forever.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♞</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="sprite" hidden></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark">♞</span>
+      <div>
+        <h1>People <span class="vs">vs</span> Stockfish</h1>
+        <p class="tagline">Everyone votes. The most-voted move gets played.</p>
+      </div>
+    </div>
+    <div class="online"><span class="dot"></span><span id="online">0</span>&nbsp;online</div>
+  </header>
+
+  <section class="scoreboard" aria-label="All-time stats">
+    <div class="stat">
+      <div class="stat-label">Moves played</div>
+      <div class="stat-value" id="stat-moves">0</div>
+    </div>
+    <div class="stat people">
+      <div class="stat-label">People wins</div>
+      <div class="stat-value" id="stat-people">0</div>
+    </div>
+    <div class="stat engine">
+      <div class="stat-label">Stockfish wins</div>
+      <div class="stat-value" id="stat-engine">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Draws</div>
+      <div class="stat-value" id="stat-draws">0</div>
+    </div>
+    <p class="since" id="since"></p>
+  </section>
+
+  <main class="layout">
+    <section class="board-col">
+      <div class="player-bar" id="bar-top">
+        <div class="avatar engine-avatar">SF</div>
+        <div class="player-name">Stockfish <span class="muted" id="skill"></span></div>
+        <div class="thinking" id="thinking" hidden><span></span><span></span><span></span></div>
+      </div>
+
+      <div class="board-frame">
+        <div class="board" id="board" role="grid" aria-label="Chess board"></div>
+        <svg class="arrows" id="arrows" viewBox="0 0 8 8" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="promo" id="promo" hidden></div>
+        <div class="overlay" id="overlay" hidden>
+          <div class="overlay-card">
+            <div class="overlay-title" id="overlay-title"></div>
+            <div class="overlay-sub" id="overlay-sub"></div>
+            <div class="overlay-next" id="overlay-next"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="player-bar" id="bar-bottom">
+        <div class="avatar people-avatar">P</div>
+        <div class="player-name">People <span class="muted" id="people-color"></span></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card status-card">
+        <div class="status-top">
+          <div>
+            <div class="eyebrow" id="game-label">Game #1</div>
+            <div class="status-title" id="status-title">Connecting…</div>
+          </div>
+          <div class="timer" id="timer"></div>
+        </div>
+        <div class="progress"><div class="progress-fill" id="progress"></div></div>
+        <p class="status-hint" id="status-hint"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Votes</h2>
+          <span class="muted" id="voter-count"></span>
+        </div>
+        <ol class="votes" id="votes"></ol>
+        <p class="empty" id="votes-empty">No votes yet. Pick a move on the board to start the round.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>This game</h2></div>
+        <ol class="moves" id="moves"></ol>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Recent games</h2></div>
+        <ul class="recent" id="recent"></ul>
+        <p class="empty" id="recent-empty">The first game is still being played.</p>
+      </div>
+
+      <details class="card how">
+        <summary>How it works</summary>
+        <ol>
+          <li>When it's the people's turn, click a piece and then a square to vote for that move. You can also click a move in the vote list.</li>
+          <li>The first vote starts a countdown. You can change your vote until it ends.</li>
+          <li>The move with the most votes is played. Ties go to the move that was suggested first.</li>
+          <li>Stockfish replies, and the next round starts. After each game the people switch colours and a new game begins.</li>
+        </ol>
+      </details>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="foot">
+    Engine: <a href="https://github.com/nmrugg/stockfish.js" target="_blank" rel="noopener">Stockfish.js</a> (GPLv3).
+    Pieces: Cburnett, CC BY-SA 3.0, via <a href="https://github.com/shaack/cm-chessboard" target="_blank" rel="noopener">cm-chessboard</a>.
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

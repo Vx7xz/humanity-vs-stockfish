@@ -1,0 +1,24 @@
+{
+  "name": "people-vs-stockfish",
+  "version": "1.0.0",
+  "description": "Everyone votes on one move against Stockfish. The most-voted move is played. Forever.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "cm-chessboard": "^8.7.3",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "stockfish": "^19.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}
