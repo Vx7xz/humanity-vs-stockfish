@@ -1,4 +1,4 @@
-// People vs Stockfish — everyone votes on the people's move, the move with the
+// Humanity vs Stockfish — everyone votes on humanity's move, the move with the
 // most votes is played, then Stockfish answers. Games run back to back forever.
 import express from 'express';
 import fs from 'node:fs';
@@ -361,7 +361,7 @@ io.on('connection', (socket) => {
 });
 
 server.listen(CONFIG.port, () => {
-  console.log(`People vs Stockfish on http://localhost:${CONFIG.port}`);
+  console.log(`Humanity vs Stockfish on http://localhost:${CONFIG.port}`);
   console.log(`storage: ${storageMode}, skill ${CONFIG.engineSkill}, vote window ${CONFIG.voteSeconds}s`);
   if (state.game.finished) newGame();
   else startTurn();

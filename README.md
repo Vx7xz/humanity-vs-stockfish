@@ -1,13 +1,13 @@
-# People vs Stockfish
+# Humanity vs Stockfish
 
 A chess website where **everyone plays together against Stockfish**.
 
-- When it's the people's turn, every visitor can vote for a move (click a piece, then a square).
+- When it's humanity's turn, every visitor can vote for a move (click a piece, then a square).
 - The first vote starts a countdown (5 minutes by default). Votes can be changed until it ends.
 - The move with the most votes is played. A tie goes to the move that was suggested first.
 - Stockfish answers, and the next voting round starts.
-- When a game ends, a new one starts automatically and the people switch colours. It runs forever.
-- All-time counters: **moves played since the site was created**, **People wins**, **Stockfish wins**, draws, games, votes.
+- When a game ends, a new one starts automatically and humanity switches colours. It runs forever.
+- All-time counters: **moves played since the site was created**, **Humanity wins**, **Stockfish wins**, draws, games, votes.
 
 Stockfish runs on the server (Stockfish 19 compiled to WebAssembly, so no native binary is needed).
 The server decides everything, so visitors can't cheat by editing the page. Each browser gets one vote
@@ -35,9 +35,9 @@ Create a new repository on https://github.com/new and push this folder to it:
 ```bash
 git init
 git add .
-git commit -m "People vs Stockfish"
+git commit -m "Humanity vs Stockfish"
 git branch -M main
-git remote add origin https://github.com/YOUR-NAME/people-vs-stockfish.git
+git remote add origin https://github.com/YOUR-NAME/humanity-vs-stockfish.git
 git push -u origin main
 ```
 
@@ -53,10 +53,10 @@ Render's free plan wipes its disk every time the site restarts, so the counters 
 ### 3. Deploy on Render
 
 1. Sign up at https://render.com with your GitHub account.
-2. Click **New** → **Blueprint**, pick your `people-vs-stockfish` repository. Render reads `render.yaml`.
+2. Click **New** → **Blueprint**, pick your `humanity-vs-stockfish` repository. Render reads `render.yaml`.
 3. Paste the two Upstash values when Render asks for them, then click **Apply**.
 4. Wait for the first build (a few minutes). Your site will be at an address like
-   `https://people-vs-stockfish.onrender.com`.
+   `https://humanity-vs-stockfish.onrender.com`.
 
 Every time you push to GitHub, Render redeploys automatically. The counters stay, because they live in Upstash.
 
@@ -87,7 +87,7 @@ or an Oracle Cloud "Always Free" VM). Set the same environment variables there.
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | – | Store the counters in Upstash Redis. Without them, a local file `data/state.json` is used. |
 | `PORT` | `3000` | Port to listen on (hosts set this for you). |
 
-At skill 20 the people will very rarely win. Lower `STOCKFISH_SKILL` if you want the People wins
+At skill 20 humanity will very rarely win. Lower `STOCKFISH_SKILL` if you want the Humanity wins
 counter to move once in a while.
 
 ## Files

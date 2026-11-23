@@ -1,5 +1,5 @@
 {
-  "name": "people-vs-stockfish",
+  "name": "humanity-vs-stockfish",
   "version": "1.0.0",
   "description": "Everyone votes on one move against Stockfish. The most-voted move is played. Forever.",
   "main": "server.js",

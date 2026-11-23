@@ -309,7 +309,7 @@
     const title = $('status-title');
     const hint = $('status-hint');
     if (S.phase === 'voting') {
-      title.textContent = S.deadline ? 'Voting is open' : 'Your move, people';
+      title.textContent = S.deadline ? 'Voting is open' : 'Your move, humanity';
       const mine = currentVote();
       const mineSan = mine && (S.legal.find((m) => m.uci === mine) || {}).san;
       hint.textContent = mine
@@ -320,11 +320,11 @@
     } else if (S.phase === 'engine') {
       title.textContent = 'Stockfish is thinking…';
       hint.textContent = S.lastMove && S.lastMove.by === 'people'
-        ? `People played ${S.lastMove.san} with ${S.lastMove.votes} of ${S.lastMove.voters} vote${S.lastMove.voters === 1 ? '' : 's'}.`
+        ? `Humanity played ${S.lastMove.san} with ${S.lastMove.votes} of ${S.lastMove.voters} vote${S.lastMove.voters === 1 ? '' : 's'}.`
         : '';
     } else {
       title.textContent = 'Game over';
-      hint.textContent = 'A new game starts soon. People switch colours each game.';
+      hint.textContent = 'A new game starts soon. Humanity switches colours each game.';
     }
 
     // votes
@@ -381,7 +381,7 @@
     recent.innerHTML = '';
     S.recentGames.forEach((g) => {
       const li = document.createElement('li');
-      const label = g.winner === 'people' ? 'People won' : g.winner === 'stockfish' ? 'Stockfish won' : 'Draw';
+      const label = g.winner === 'people' ? 'Humanity won' : g.winner === 'stockfish' ? 'Stockfish won' : 'Draw';
       li.innerHTML = `<span>#${fmt(g.number)} <span class="muted">· ${g.peopleColor === 'w' ? 'White' : 'Black'} · ${g.reason} · ${Math.ceil(g.moves / 2)} moves</span></span><span class="badge ${g.winner}">${label}</span>`;
       recent.appendChild(li);
     });
@@ -392,7 +392,7 @@
     if (S.phase === 'gameover' && S.result) {
       const t = $('overlay-title');
       t.className = 'overlay-title ' + S.result.winner;
-      t.textContent = S.result.winner === 'people' ? 'People win!' : S.result.winner === 'stockfish' ? 'Stockfish wins' : 'Draw';
+      t.textContent = S.result.winner === 'people' ? 'Humanity wins!' : S.result.winner === 'stockfish' ? 'Stockfish wins' : 'Draw';
       $('overlay-sub').textContent = `Game #${fmt(S.result.gameNumber)} ended by ${S.result.reason}.`;
       overlay.hidden = false;
     } else {
